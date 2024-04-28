@@ -1,16 +1,11 @@
 from common.logger import Logger
-from query.query_kaggle import QueryKaggle
-
-LOGGER = Logger('main')
+from gui.recommender_gui import RecommenderGui
 
 
-def run():
-    LOGGER.info("Running movie recommendation app")
-
-    query = QueryKaggle(log_level=Logger.DEBUG)
-    query.execute()
-    LOGGER.error("done query?")
+def main():
+    app = RecommenderGui(Logger.DEBUG)
+    app.run()
 
 
 if __name__ == "__main__":
-    run()
+    main()
