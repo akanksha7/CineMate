@@ -63,7 +63,7 @@ class RecommenderGui(QMainWindow):
         pass
 
     def _finish_query(self) -> None:
-        self._logger.info('Done with query. Creating dataframe.')
+        self._logger.info('Done with query. Cleaning up tmp files and creating dataframe.')
         output_dir = './tmp_data'
         csv_files = [file for file in os.listdir(output_dir) if file.endswith('.csv')]
 
@@ -73,6 +73,7 @@ class RecommenderGui(QMainWindow):
             file_path = os.path.join(output_dir, file)
             df = pd.read_csv(file_path)
             dfs.append(df)
+            self._logger.debug(f"Removing file {file_path}")
             os.remove(file_path)
         dataset = BaseDataset(str(uuid.uuid4()))
         dataset.dataframe = pd.concat(dfs, ignore_index=True)
