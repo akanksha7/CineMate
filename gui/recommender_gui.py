@@ -80,5 +80,6 @@ class RecommenderGui(QMainWindow):
 
     def _show_dataset(self) -> None:
         """Show the current dataset's dataframe."""
-        self._table_widget.set_data(self.ui.datasets.currentData())
-        self._table_widget.show()
+        if self.ui.datasets.currentData() is not None:
+            self._table_widget.set_data(self.ui.datasets.currentData())
+            self._table_widget.show()
