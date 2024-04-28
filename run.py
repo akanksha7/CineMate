@@ -1,10 +1,15 @@
+import sys
+
 from common.logger import Logger
 from gui.recommender_gui import RecommenderGui
+from PyQt5.QtWidgets import QApplication
 
 
 def main():
-    app = RecommenderGui(Logger.DEBUG)
-    app.run()
+    app = QApplication(sys.argv)
+    window = RecommenderGui(Logger.DEBUG)
+    window.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
