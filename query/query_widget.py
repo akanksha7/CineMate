@@ -37,7 +37,7 @@ class QueryWidget(QWidget):
         kaggle_cls = QueryKaggle(self._log_level)
         self._datasources['Kaggle'] = kaggle_cls
         self.ui.datasources.addItem('Kaggle')
-        self._logger.debug(f'Current datasources: {list(self._datasources.keys())}')
+        self._logger.debug(f'Available datasources: {list(self._datasources.keys())}')
 
     def _execute(self):
         datasource = self.ui.datasources.currentText()

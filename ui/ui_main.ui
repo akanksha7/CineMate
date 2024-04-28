@@ -43,6 +43,13 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="showDataset">
+          <property name="text">
+           <string>Show Data</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>

@@ -7,7 +7,8 @@ class BaseDataset:
     # Required fields
     REQUIRED_FIELDS = [Genre, Rating, Title]
 
-    def __init__(self):
+    def __init__(self, name=''):
+        self.name = name
         self._df = pd.DataFrame()
 
     @property

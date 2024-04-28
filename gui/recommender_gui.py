@@ -1,7 +1,11 @@
+import os
+import pandas as pd
+import uuid
+
 from common.base_dataset import BaseDataset
 from common.logger import Logger
-# from query.query_kaggle import QueryKaggle
 from query.query_widget import QueryWidget
+from table.table_widget import TableWidget
 from ui.ui_main import Ui_MainWindow
 
 from PyQt5.QtWidgets import QMainWindow
@@ -25,6 +29,9 @@ class RecommenderGui(QMainWindow):
         # Query Widget
         self._query_widget = QueryWidget(self._log_level)
 
+        # Table Widget
+        self._table_widget = TableWidget()
+
         # Main dataframe
         self._df = BaseDataset()
         self._get_initial_data()
@@ -32,6 +39,7 @@ class RecommenderGui(QMainWindow):
         # Connect signals
         self._query_widget.done.connect(self._finish_query)
         self.ui.openQuery.pressed.connect(self._query_widget.show)
+        self.ui.showDataset.pressed.connect(self._show_dataset)
 
     def _set_stylesheet(self):
         # Dark mode stylesheet
@@ -54,7 +62,23 @@ class RecommenderGui(QMainWindow):
         # TODO read all the files in the data directory to set the og dataframe
         pass
 
-    def _finish_query(self):
-        self._logger.info('Done with query')
-        # TODO after query is executed, read the files and form a base_dataset,
-        #  then delete the csv's in filesystem
+    def _finish_query(self) -> None:
+        self._logger.info('Done with query. Creating dataframe.')
+        output_dir = './tmp_data'
+        csv_files = [file for file in os.listdir(output_dir) if file.endswith('.csv')]
+
+        # Read each CSV file into a DataFrame, then remove the file
+        dfs = []
+        for file in csv_files:
+            file_path = os.path.join(output_dir, file)
+            df = pd.read_csv(file_path)
+            dfs.append(df)
+            os.remove(file_path)
+        dataset = BaseDataset(str(uuid.uuid4()))
+        dataset.dataframe = pd.concat(dfs, ignore_index=True)
+        self.ui.datasets.addItem(dataset.name, dataset.dataframe)
+
+    def _show_dataset(self) -> None:
+        """Show the current dataset's dataframe."""
+        self._table_widget.set_data(self.ui.datasets.currentData())
+        self._table_widget.show()
