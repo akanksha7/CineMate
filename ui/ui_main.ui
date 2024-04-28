@@ -18,9 +18,9 @@
     <item row="3" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QComboBox" name="dataset">
+       <widget class="QComboBox" name="datasets">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -28,11 +28,22 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="query">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QPushButton" name="openQuery">
+          <property name="text">
+           <string>Query</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="openImport">
+          <property name="text">
+           <string>Import</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -42,7 +53,7 @@
        <widget class="QLineEdit" name="movieRequest"/>
       </item>
       <item>
-       <widget class="QPushButton" name="confirm">
+       <widget class="QPushButton" name="startRequest">
         <property name="text">
          <string/>
         </property>

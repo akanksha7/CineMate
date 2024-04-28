@@ -10,11 +10,10 @@ class QueryKaggle(QueryGeneric):
         self._logger = Logger(self.__class__.__name__)
         self._logger.set_level(log_level)
 
-    def execute(self) -> None:
-        # TODO run this execution in a thread
+    def execute(self, **kwargs) -> None:
         self._logger.info('Query kaggle to get dataset related to movie ratings')
 
-        # TODO is this the best way?
+        # # TODO is this the best way?
         datasets = kaggle.api.dataset_list(search='movie IMDb rating', file_type='csv', sort_by="hottest")
 
         # Download the first 10 most popular datasets
