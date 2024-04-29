@@ -22,3 +22,12 @@ class TableModel(QAbstractTableModel):
             if role == Qt.DisplayRole:
                 return str(self._data.iloc[index.row(), index.column()])
         return None
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return str(self._data.columns[section])
+            elif orientation == Qt.Vertical:
+                return str(section + 1)
+        return None
+    
