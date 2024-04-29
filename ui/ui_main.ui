@@ -44,9 +44,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="showDataset">
+         <widget class="QPushButton" name="openTable">
           <property name="text">
-           <string>Show Data</string>
+           <string>Show Dataset</string>
           </property>
          </widget>
         </item>

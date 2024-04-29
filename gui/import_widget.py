@@ -45,5 +45,3 @@ class ImportWidget(QWidget):
                 self._logger.error(e)
         else:
             self._logger.info('Not a valid file path')
-        # Do something with the DataFrame, for example, emit a signal
-        # self.data_imported.emit(df)

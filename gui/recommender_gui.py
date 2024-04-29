@@ -41,7 +41,7 @@ class RecommenderGui(QMainWindow):
         self._query_widget.done.connect(self._finish_query)
         self.ui.openImport.pressed.connect(self._import_widget.show)
         self.ui.openQuery.pressed.connect(self._query_widget.show)
-        self.ui.showDataset.pressed.connect(self._show_dataset)
+        self.ui.openTable.pressed.connect(self._open_table)
 
     def _set_stylesheet(self):
         # Dark mode stylesheet
@@ -101,8 +101,8 @@ class RecommenderGui(QMainWindow):
         else:
             self._logger.info('No dataset created')
 
-    def _show_dataset(self) -> None:
-        """Show the current dataset's dataframe."""
+    def _open_table(self) -> None:
+        """Show the current dataset's dataframe in a table."""
         if self.ui.datasets.currentData() is not None:
             self._table_widget.set_data(self.ui.datasets.currentData())
             self._table_widget.show()
