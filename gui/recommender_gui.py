@@ -89,26 +89,41 @@ class RecommenderGui(QMainWindow):
         """Query has finished. Read the files, cleanup, and add datasets to list."""
         self._logger.info('Done with query. Cleaning up tmp files and creating dataframe.')
 
-        # Read each CSV file into a DataFrame, then remove the file
+        # Read each CSV file into a DataFrame
         output_dir = './tmp_data'
         dfs = []
-        for file in os.listdir(output_dir):
-            file_path = os.path.join(output_dir, file)
-            if file.endswith('.csv'):
-                try:
-                    df = pd.read_csv(file_path)
-                    dfs.append(df)
-                except Exception as e:
-                    self._logger.error(f"Unable to convert file to dataframe: {file_path}")
-                    self._logger.error(e)
-                self._logger.debug(f"Removing file {file}")
-            os.remove(file_path)
+        for root, dirs, files in os.walk(output_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                self._logger.debug(f"Reading file: {file}")
+                if file.endswith('.csv'):
+                    try:
+                        df = pd.read_csv(file_path)
+                        dfs.append(df)
+                    except Exception as e:
+                        self._logger.error(f"Unable to convert file to dataframe: {file_path}")
+                        self._logger.error(e)
+
+        # After we finish reading all files, cleanup tmp directory
+        for root, dirs, files in os.walk(output_dir, topdown=False):
+            for name in files:
+                file_path = os.path.join(root, name)
+                os.remove(file_path)
+                self._logger.debug(f"Removing file {name}")
+            for name in dirs:
+                dir_path = os.path.join(root, name)
+                os.rmdir(dir_path)
+                self._logger.debug(f"Removing sub directory {name}")
 
         # Create a new dataset
         if dfs:
-            dataset = BaseDataset(name + '_' + datetime.now().strftime("%H:%M:%S"))
-            dataset.df = pd.concat(dfs, ignore_index=True)
-            self.ui.datasets.addItem(dataset.name, dataset.df)
+            try:
+                dataset = BaseDataset(name + '_' + datetime.now().strftime("%H:%M:%S"))
+                dataset.df = pd.concat(dfs, ignore_index=True)
+                self.ui.datasets.addItem(dataset.name, dataset.df)
+            except Exception as e:
+                self._logger.error(f"Unable to concat dataframes.")
+                self._logger.error(e)
         else:
             self._logger.info('No dataset created')
 
