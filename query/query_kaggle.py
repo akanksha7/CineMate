@@ -10,10 +10,11 @@ class QueryKaggle(QueryGeneric):
         self._logger = Logger(self.__class__.__name__)
         self._logger.set_level(log_level)
 
-    def execute(self, text, **kwargs) -> None:
+    def execute(self, text: str, **kwargs) -> None:
+        """Use kaggle api to query and download data."""
         self._logger.info('Query kaggle to get dataset related to movie ratings')
 
-        # # TODO is this the best way?
+        # TODO is this the best way?
         datasets = kaggle.api.dataset_list(search=text, file_type='csv', sort_by="hottest")
 
         # Download the first n most popular datasets

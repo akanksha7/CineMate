@@ -39,7 +39,8 @@ class QueryWidget(QWidget):
         self.ui.datasources.addItem('Kaggle')
         self._logger.debug(f'Available datasources: {list(self._datasources.keys())}')
 
-    def _execute(self):
+    def _execute(self) -> None:
+        """Execute clicked. Start thread to run query."""
         datasource = self.ui.datasources.currentText()
         cls = self._datasources[datasource]
         worker = Worker(cls.execute, self.ui.searchText.text().replace(' ', '_'))
@@ -50,6 +51,6 @@ class QueryWidget(QWidget):
 
     def show(self) -> None:
         """Qt override to set the default search text"""
-        # TODO figure out what the best search text is
+        # TODO figure out what the best default search text is
         self.ui.searchText.setText('movie IMDb rating')
         super().show()

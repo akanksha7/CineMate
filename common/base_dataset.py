@@ -21,7 +21,10 @@ class BaseDataset:
         self._normalize()
 
     def _normalize(self) -> None:
-        """Ensure the dataframe has it's required columns."""
+        """Normalize dataframe."""
+        # Ensure the dataframe has the required columns
         for field in self.REQUIRED_FIELDS:
             if not any(col in self._df.columns for col in [field.NAME] + field.aliases()):
                 self._df[field.NAME] = None
+
+        # TODO continue normalizing the dataframe to ensure we can run our algorithms on it

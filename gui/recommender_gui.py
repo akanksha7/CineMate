@@ -38,8 +38,8 @@ class RecommenderGui(QMainWindow):
         self._table_widget = TableWidget()
         self._import_widget = ImportWidget(self._log_level)
 
-        # Get the saved data located in ./data
-        self._get_initial_data()
+        # Set initial data located in ./data
+        self._set_initial_data()
 
         # Connect signals
         self._import_widget.done.connect(self._finish_import)
@@ -67,7 +67,8 @@ class RecommenderGui(QMainWindow):
         """
         self.setStyleSheet(style)
 
-    def _get_initial_data(self):
+    def _set_initial_data(self) -> None:
+        """Import the 'good' datasets that we keep in ./data"""
         output_dir = './data'
         for file in os.listdir(output_dir):
             file_path = os.path.join(output_dir, file)
@@ -79,11 +80,13 @@ class RecommenderGui(QMainWindow):
                 self._logger.error(f"Unable to convert file to dataframe: {file_path}")
                 self._logger.error(e)
 
-    def _finish_import(self, dataset: BaseDataset):
+    def _finish_import(self, dataset: BaseDataset) -> None:
+        """Import has finished. Add to list of datasets."""
         self._logger.info(f'Importing new dataset: {dataset.name}')
         self.ui.datasets.addItem(dataset.name, dataset.df)
 
     def _finish_query(self, name: str) -> None:
+        """Query has finished. Read the files, cleanup, and add datasets to list."""
         self._logger.info('Done with query. Cleaning up tmp files and creating dataframe.')
 
         # Read each CSV file into a DataFrame, then remove the file

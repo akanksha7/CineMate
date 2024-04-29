@@ -27,15 +27,18 @@ class ImportWidget(QWidget):
         self.ui.file.pressed.connect(self._open_file_browser)
         self.ui.startImport.pressed.connect(self._start_import)
 
-    def _open_file_browser(self):
+    def _open_file_browser(self) -> None:
+        """Open a file browser to select file."""
         file_dialog = QFileDialog(self)
         file_path, _ = file_dialog.getOpenFileName(self, "Open File", "", "CSV Files (*.csv);;All Files (*)")
         if file_path:
             self.ui.label.setText(file_path)
 
-    def _start_import(self):
+    def _start_import(self) -> None:
+        """Import clicked. Read the file and try to create a BaseDataset."""
         if os.path.isfile(self.ui.label.text()):
             try:
+                # TODO should probably thread this because import files could be large
                 dataset = BaseDataset(self.ui.label.text().split('/')[-1].split('.')[0])
                 dataset.df = pd.read_csv(self.ui.label.text())
                 self.done.emit(dataset)

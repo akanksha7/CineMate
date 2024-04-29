@@ -14,7 +14,7 @@ class TableModel(QAbstractTableModel):
     def columnCount(self, parent=None):
         return self._data.columns.size
 
-    def set_data(self, data):
+    def set_data(self, data: pd.DataFrame):
         self.beginResetModel()
         self._data = data
         self.endResetModel()
