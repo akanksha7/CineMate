@@ -20,6 +20,11 @@ class RecommenderGui(QMainWindow):
         # Initialize ui
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        timestamp = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+        new_message = f"[{timestamp}] Bot: What type of movie would you like to watch?"
+        self.ui.chatBox.append(new_message)
+
+        # Dark mode
         self._set_stylesheet()
 
         # Setup logging
@@ -39,6 +44,8 @@ class RecommenderGui(QMainWindow):
         # Connect signals
         self._import_widget.done.connect(self._finish_import)
         self._query_widget.done.connect(self._finish_query)
+        self.ui.userInput.returnPressed.connect(self._user_chatted)
+        self.ui.enter.pressed.connect(self._user_chatted)
         self.ui.openImport.pressed.connect(self._import_widget.show)
         self.ui.openQuery.pressed.connect(self._query_widget.show)
         self.ui.openTable.pressed.connect(self._open_table)
@@ -100,6 +107,18 @@ class RecommenderGui(QMainWindow):
             self.ui.datasets.addItem(dataset.name, dataset.df)
         else:
             self._logger.info('No dataset created')
+
+    def _user_chatted(self) -> None:
+        """User chatted. Append user chat to window and get chat bot response."""
+        message = self.ui.userInput.text()
+        if message:
+            timestamp = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+            new_message = f"[{timestamp}] User: {message}"
+            self.ui.chatBox.append(new_message)
+            self.ui.userInput.clear()
+            self.ui.chatBox.verticalScrollBar().setValue(self.ui.chatBox.verticalScrollBar().maximum())
+
+            # TODO get chat bot output
 
     def _open_table(self) -> None:
         """Show the current dataset's dataframe in a table."""
