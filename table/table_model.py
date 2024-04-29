@@ -15,7 +15,9 @@ class TableModel(QAbstractTableModel):
         return self._data.columns.size
 
     def set_data(self, data):
+        self.beginResetModel()
         self._data = data
+        self.endResetModel()
 
     def data(self, index, role=Qt.DisplayRole):
         if index.isValid() and role == Qt.DisplayRole:
