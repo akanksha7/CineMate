@@ -80,6 +80,7 @@ class RecommenderGui(QMainWindow):
                 self._logger.error(e)
 
     def _finish_import(self, dataset: BaseDataset):
+        self._logger.info(f'Importing new dataset: {dataset.name}')
         self.ui.datasets.addItem(dataset.name, dataset.df)
 
     def _finish_query(self, name: str) -> None:
