@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QWidget
 
 
 class QueryWidget(QWidget):
-    done = pyqtSignal()
+    done = pyqtSignal(str)
 
     def __init__(self, log_level=Logger.INFO):
         super().__init__()
@@ -42,8 +42,14 @@ class QueryWidget(QWidget):
     def _execute(self):
         datasource = self.ui.datasources.currentText()
         cls = self._datasources[datasource]
-        worker = Worker(cls.execute)
-        worker.signals.finished.connect(self.done.emit)
+        worker = Worker(cls.execute, self.ui.searchText.text().replace(' ', '_'))
+        worker.signals.finished.connect(lambda: self.done.emit(self.ui.searchText.text()))
         self._logger.debug(f'Starting query thread for {datasource} datasource')
         self._thread_pool.start(worker)
         self.hide()
+
+    def show(self) -> None:
+        """Qt override to set the default search text"""
+        # TODO figure out what the best search text is
+        self.ui.searchText.setText('movie IMDb rating')
+        super().show()

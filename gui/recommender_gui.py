@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-import uuid
+from datetime import datetime
 
 from common.base_dataset import BaseDataset
 from common.logger import Logger
@@ -32,8 +32,7 @@ class RecommenderGui(QMainWindow):
         # Table Widget
         self._table_widget = TableWidget()
 
-        # Main dataframe
-        self._df = BaseDataset()
+        # Get the saved data located in ./data
         self._get_initial_data()
 
         # Connect signals
@@ -59,28 +58,47 @@ class RecommenderGui(QMainWindow):
         self.setStyleSheet(style)
 
     def _get_initial_data(self):
-        # TODO read all the files in the data directory to set the og dataframe
-        pass
+        output_dir = './data'
+        for file in os.listdir(output_dir):
+            file_path = os.path.join(output_dir, file)
+            try:
+                dataset = BaseDataset(file.split('.')[0])
+                dataset.dataframe = pd.read_csv(file_path)
+                self.ui.datasets.addItem(dataset.name, dataset.dataframe)
+            except Exception as e:
+                self._logger.error(f"Unable to convert file to dataframe: {file_path}")
+                self._logger.error(e)
 
-    def _finish_query(self) -> None:
+    def _finish_query(self, name: str) -> None:
         self._logger.info('Done with query. Cleaning up tmp files and creating dataframe.')
-        output_dir = './tmp_data'
-        csv_files = [file for file in os.listdir(output_dir) if file.endswith('.csv')]
 
         # Read each CSV file into a DataFrame, then remove the file
+        output_dir = './tmp_data'
         dfs = []
-        for file in csv_files:
+        for file in os.listdir(output_dir):
             file_path = os.path.join(output_dir, file)
-            df = pd.read_csv(file_path)
-            dfs.append(df)
-            self._logger.debug(f"Removing file {file_path}")
+            if file.endswith('.csv'):
+                try:
+                    df = pd.read_csv(file_path)
+                    dfs.append(df)
+                except Exception as e:
+                    self._logger.error(f"Unable to convert file to dataframe: {file_path}")
+                    self._logger.error(e)
+                self._logger.debug(f"Removing file {file}")
             os.remove(file_path)
-        dataset = BaseDataset(str(uuid.uuid4()))
-        dataset.dataframe = pd.concat(dfs, ignore_index=True)
-        self.ui.datasets.addItem(dataset.name, dataset.dataframe)
+
+        # Create a new dataset
+        if dfs:
+            dataset = BaseDataset(name + '_' + datetime.now().strftime("%H:%M:%S"))
+            dataset.dataframe = pd.concat(dfs, ignore_index=True)
+            self.ui.datasets.addItem(dataset.name, dataset.dataframe)
+        else:
+            self._logger.info('No dataset created')
 
     def _show_dataset(self) -> None:
         """Show the current dataset's dataframe."""
         if self.ui.datasets.currentData() is not None:
             self._table_widget.set_data(self.ui.datasets.currentData())
             self._table_widget.show()
+        else:
+            self._logger.debug('No dataset selected')
