@@ -23,5 +23,5 @@ class BaseDataset:
     def _normalize(self) -> None:
         """Ensure the dataframe has it's required columns."""
         for field in self.REQUIRED_FIELDS:
-            if not any(col in self._df.columns for col in [field.NAME + field.aliases()]):
+            if not any(col in self._df.columns for col in [field.NAME] + field.aliases()):
                 self._df[field.NAME] = None

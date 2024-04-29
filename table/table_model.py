@@ -18,16 +18,17 @@ class TableModel(QAbstractTableModel):
         self._data = data
 
     def data(self, index, role=Qt.DisplayRole):
-        if index.isValid():
-            if role == Qt.DisplayRole:
-                return str(self._data.iloc[index.row(), index.column()])
+        if index.isValid() and role == Qt.DisplayRole:
+            row = index.row()
+            col = index.column()
+            if 0 <= row < self.rowCount() and 0 <= col < self.columnCount():
+                return str(self._data.iloc[row, col])
         return None
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return str(self._data.columns[section])
+                return str(self._data.columns[section]) if section < len(self._data.columns) else None
             elif orientation == Qt.Vertical:
-                return str(section + 1)
+                return str(section + 1) if section < self.rowCount() else None
         return None
-    

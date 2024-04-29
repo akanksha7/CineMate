@@ -1,3 +1,4 @@
+import pandas as pd
 from table.table_model import TableModel
 
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QTableView
@@ -12,6 +13,6 @@ class TableWidget(QWidget):
         self._table_view = QTableView()
         layout.addWidget(self._table_view)
 
-    def set_data(self, data):
+    def set_data(self, data: pd.DataFrame):
         self._model.set_data(data)
         self._table_view.setModel(self._model)

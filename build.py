@@ -7,3 +7,6 @@ subprocess.run(["pyuic5.exe", "ui/ui_main.ui", "-o", "ui/ui_main.py"])
 
 print('Executing pyuic5.exe ui/ui_querywidget.ui -o ui/ui_querywidget.py')
 subprocess.run(["pyuic5.exe", "ui/ui_querywidget.ui", "-o", "ui/ui_querywidget.py"])
+
+print('Executing pyuic5.exe ui/ui_importwidget.ui -o ui/ui_importwidget.py')
+subprocess.run(["pyuic5.exe", "ui/ui_importwidget.ui", "-o", "ui/ui_importwidget.py"])
