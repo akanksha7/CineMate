@@ -1,3 +1,7 @@
+import pandas as pd
+from datetime import datetime
+
+from common.base_dataset import BaseDataset
 from common.logger import Logger
 from common.worker import Worker
 from query.query_kaggle import QueryKaggle
@@ -8,7 +12,7 @@ from PyQt5.QtWidgets import QWidget
 
 
 class QueryWidget(QWidget):
-    done = pyqtSignal(str)
+    done = pyqtSignal(list)
 
     def __init__(self, log_level=Logger.INFO):
         super().__init__()
@@ -35,16 +39,41 @@ class QueryWidget(QWidget):
         # TODO adding these datasources should probably be setup in a configuration file
         #  but for now we only have one datasource so this is fine
         kaggle_cls = QueryKaggle(self._log_level)
+        kaggle_cls.finalized.connect(self._create_datasets)
         self._datasources['Kaggle'] = kaggle_cls
         self.ui.datasources.addItem('Kaggle')
         self._logger.debug(f'Available datasources: {list(self._datasources.keys())}')
+
+    def _create_datasets(self, dfs: list, name: str, merge: bool) -> None:
+        """From the query results, create a merged dataset, or individual datasets."""
+        datasets = []
+        if merge:
+            if dfs:
+                try:
+                    dataset = BaseDataset(name + '_' + datetime.now().strftime("%H:%M:%S"))
+                    dataset.df = pd.concat(dfs, ignore_index=True)
+                    datasets.append(dataset)
+                except Exception as e:
+                    self._logger.error(f"Unable to concat dataframes.")
+                    self._logger.error(e)
+        else:
+            for idx, df in enumerate(dfs):
+                try:
+                    dataset = BaseDataset(name + f'_{idx}_' + datetime.now().strftime("%H:%M:%S"))
+                    dataset.df = df
+                    datasets.append(dataset)
+                except Exception as e:
+                    self._logger.error(f"Unable to concat dataframes.")
+                    self._logger.error(e)
+        self.done.emit(datasets)
 
     def _execute(self) -> None:
         """Execute clicked. Start thread to run query."""
         datasource = self.ui.datasources.currentText()
         cls = self._datasources[datasource]
-        worker = Worker(cls.execute, self.ui.searchText.text().replace(' ', '_'))
-        worker.signals.finished.connect(lambda: self.done.emit(self.ui.searchText.text()))
+        worker = Worker(cls.execute, self.ui.searchText.text())
+        worker.signals.finished.connect(lambda: cls.finalize(self.ui.searchText.text().replace(' ', '_'),
+                                                             self.ui.merge.isChecked()))
         self._logger.debug(f'Starting query thread for {datasource} datasource')
         self._thread_pool.start(worker)
         self.hide()
