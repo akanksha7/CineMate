@@ -20,5 +20,8 @@ Before running the code, make sure you've set up the Kaggle API credentials. To 
 ### Build QT ui files
     python build.py
 
+### Train chatbot
+    python chatbot/train_chatbot.py
+
 ### Launch application
     python run.py

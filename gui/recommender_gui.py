@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from datetime import datetime
+from chatterbot import ChatBot
 
 from common.base_dataset import BaseDataset
 from common.logger import Logger
@@ -40,6 +41,13 @@ class RecommenderGui(QMainWindow):
 
         # Set initial data located in ./data
         self._set_initial_data()
+
+        # ChatBot
+        self._chat_bot = ChatBot('Terminal',
+                                 storage_adapter='chatterbot.storage.SQLStorageAdapter',
+                                 logic_adapters=['chatterbot.logic.MathematicalEvaluation',
+                                                 'chatterbot.logic.BestMatch'],
+                                 database_uri='sqlite:///database.db')
 
         # Connect signals
         self._import_widget.done.connect(self._finish_import)
@@ -103,12 +111,14 @@ class RecommenderGui(QMainWindow):
         message = self.ui.userInput.text()
         if message:
             timestamp = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-            new_message = f"[{timestamp}] User: {message}"
-            self.ui.chatBox.append(new_message)
+            user_msg = f"[{timestamp}] User: {message}"
+            self.ui.chatBox.append(user_msg)
             self.ui.userInput.clear()
             self.ui.chatBox.verticalScrollBar().setValue(self.ui.chatBox.verticalScrollBar().maximum())
 
-            # TODO get chat bot output
+            bot_msg = self._chat_bot.get_response(message).text
+            timestamp = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+            self.ui.chatBox.append(f"[{timestamp}] Bot: {bot_msg}")
 
     def _open_table(self) -> None:
         """Show the current dataset's dataframe in a table."""
