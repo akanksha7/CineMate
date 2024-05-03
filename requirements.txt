@@ -1,5 +1,0 @@
-pandas
-PyQt5
-kaggle
-colorlog
-chatterbot==1.0.4
