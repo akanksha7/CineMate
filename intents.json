@@ -32,7 +32,7 @@
     "responses": ["I'm sorry that you didn't like it. Here are some other suggestions", "I'm sorry to hear that. Here are some other movies you might", "That's unfortunate.Here are some other suggestions"]
     },
     {"tag": "comedy",
-    "patterns": ["I want to watch a comedy movie", "I like Comedy movies", "I love Comedy movies", "I enjoy Comedy movies"],
+    "patterns": ["I want to watch a something funny", "I like Comedy movies", "I love Comedy movies", "I enjoy Comedy movies"],
     "responses": ["Great choice! Here are some Comedy movies you might like:", "Nice choice! Here are some Comedy movies you might like:", "Awesome choice! Here are some Comedy movies you might like:"]
     },
     {"tag": "action",
@@ -40,7 +40,7 @@
     "responses": ["Great choice! Here are some Action movies you might like:", "Nice choice! Here are some Action movies you might like:", "Awesome choice! Here are some Action movies you might like:"]
     },
     {"tag": "horror",
-    "patterns": ["I want to watch a horror movie", "I like Horror movies", "I love Horror movies", "I enjoy Horror movies"],
+    "patterns": ["I want to watch a horror movie", "I like scary movies", "I love Horror movies", "I enjoy Horror movies"],
     "responses": ["Great choice! Here are some Horror movies you might like:", "Nice choice! Here are some Horror movies you might like:", "Awesome choice! Here are some Horror movies you might like:"]
     }
 ]
