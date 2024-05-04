@@ -2,3 +2,5 @@
 venv/
 random/*
 .idea/
+recommend_model/__pycache__/
+__pycache__/
