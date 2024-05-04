@@ -42,6 +42,14 @@
     {"tag": "horror",
     "patterns": ["I want to watch a horror movie", "I like scary movies", "I love Horror movies", "I enjoy Horror movies"],
     "responses": ["Great choice! Here are some Horror movies you might like:", "Nice choice! Here are some Horror movies you might like:", "Awesome choice! Here are some Horror movies you might like:"]
+    },
+      {"tag": "romance",
+    "patterns": ["I want to watch a romance movie", "I like Romance movies", "I love Romance movies", "I enjoy Romance movies"],
+    "responses": ["Great choice! Here are some Romance movies you might like:", "Nice choice! Here are some Romance movies you might like:", "Awesome choice! Here are some Romance movies you might like:"]
+    },
+    {"tag": "drama",
+    "patterns": ["I want to watch a drama movie", "I like Drama movies", "I love Drama movies", "I enjoy Drama movies"],
+    "responses": ["Great choice! Here are some Drama movies you might like:", "Nice choice! Here are some Drama movies you might like:", "Awesome choice! Here are some Drama movies you might like:"]
     }
 ]
 }
