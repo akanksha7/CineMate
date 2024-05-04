@@ -1,0 +1,10 @@
+altair
+numpy
+pandas
+pydeck
+streamlit
+tensorflow
+nltk
+colorama
+scikit_learn
+Flask
