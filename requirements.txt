@@ -4,3 +4,11 @@ ast
 sklearn
 os
 warnings
+altair
+pydeck
+streamlit
+tensorflow
+nltk
+colorama
+scikit_learn
+Flask
