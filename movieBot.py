@@ -7,6 +7,8 @@ from nltk.stem import WordNetLemmatizer
 import pickle
 import numpy as np
 import random
+from recommend_model.model import MovieRecommender
+
 
 LOGGER = get_logger(__name__)
 
@@ -19,6 +21,14 @@ words = pickle.load( open('words.pkl', 'rb'))
 classes = pickle.load( open('classes.pkl', 'rb'))
 model = keras.models.load_model('chatbot_model.h5')
 
+@st.cache_data()
+def render_left_ui():
+    return {
+        'fav_comedy': None,
+        'fav_action': None,
+        'fav_drama': None,
+        'fav_romance': None,
+        'fav_horror': None}
 
 def run():
     st.set_page_config(
@@ -30,7 +40,39 @@ def run():
     
     with open("intents.json") as file:
         intents = json.load(file)
-    
+
+    if "my_instance" not in st.session_state:
+        st.session_state.recommender = MovieRecommender()
+
+    left_ui = render_left_ui()
+    comedies = list(st.session_state.recommender.get_random_comedy_movies(250).keys())
+    actions = list(st.session_state.recommender.get_random_action_movies(250).keys())
+    dramas = list(st.session_state.recommender.get_random_drama_movies(250).keys())
+    horrors = list(st.session_state.recommender.get_random_horror_movies(250).keys())
+    romances = list(st.session_state.recommender.get_random_romance_movies(250).keys())
+    with st.sidebar:
+        st.title("Choose Your Favorite Movies!")
+        left_ui['fav_comedy'] = st.selectbox("Favorite Comedy", comedies)
+        left_ui['fav_action'] = st.selectbox("Favorite Action", actions)
+        left_ui['fav_drama'] = st.selectbox("Favorite Drama", dramas)
+        left_ui['fav_romance'] = st.selectbox("Favorite Romance", romances)
+        left_ui['fav_horror'] = st.selectbox("Favorite Horror", horrors)
+
+    # How to grab the values from the dropdowns
+    fav_comedy = str(left_ui['fav_comedy'])
+    fav_action = str(left_ui['fav_action'])
+    fav_drama = str(left_ui['fav_drama'])
+    fav_romance = str(left_ui['fav_romance'])
+    fav_horror = str(left_ui['fav_horror'])
+
+    # How to grab the recommendations
+    comedy_recommendations = st.session_state.recommender.get_recommendation(fav_comedy)
+    action_recommendations = st.session_state.recommender.get_recommendation(fav_action)
+    drama_recommendations = st.session_state.recommender.get_recommendation(fav_drama)
+    romance_recommendations = st.session_state.recommender.get_recommendation(fav_romance)
+    horror_recommendations = st.session_state.recommender.get_recommendation(fav_horror)
+
+
     # parameters
     max_len = 20
    

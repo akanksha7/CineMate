@@ -1,8 +1,11 @@
-streamlit
-keras
-json
+pandas
 numpy
-random
-pickle
-tensorflow 
+altair
+pydeck
+streamlit==1.31.0
+tensorflow
 nltk
+colorama
+scikit_learn
+Flask
+keras
