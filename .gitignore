@@ -5,6 +5,3 @@ random/*
 recommend_model/__pycache__/*
 __pycache__/*
 *.pyc
-chatbot_model.h5
-classes.pkl
-words.pkl
