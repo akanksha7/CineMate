@@ -31,6 +31,11 @@ def render_left_ui():
         'fav_romance': None,
         'fav_horror': None}
 
+@st.cache_resource
+def init_recommender():
+    if "my_instance" not in st.session_state:
+        st.session_state.recommender = MovieRecommender()
+
 def run():
     st.set_page_config(
         page_title="Movie Bot",
@@ -41,8 +46,8 @@ def run():
     with open("intents.json") as file:
         intents = json.load(file)
 
-    if "my_instance" not in st.session_state:
-        st.session_state.recommender = MovieRecommender()
+    # Create recommender model
+    init_recommender()
 
     left_ui = render_left_ui()
     comedies = list(st.session_state.recommender.get_random_comedy_movies(250).keys())
@@ -77,9 +82,6 @@ def run():
                        'romance': romance_recommendations,
                        'horror': horror_recommendations}
 
-    # parameters
-    max_len = 20
-   
     # Initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
