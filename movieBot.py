@@ -46,7 +46,9 @@ def run():
         intents = json.load(file)
 
     # Create recommender model
-    init_recommender()
+    # TODO this doesn't seem right, but probably good enough
+    while not hasattr(st.session_state, 'recommender'):
+        init_recommender()
 
     left_ui = render_left_ui()
     comedies = list(st.session_state.recommender.get_random_comedy_movies(250).keys())
@@ -70,19 +72,23 @@ def run():
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
+            if message['movie_list']:
+                st.code(message['movie_list'])
 
     # React to user input
     if prompt:= st.chat_input("Hey! Here are some movie recommendations for you. What are you in the mood for?"):
         st.chat_message("user").markdown(prompt)
         # Add user message to chat history
-        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.messages.append({"role": "user", "content": prompt, 'movie_list': ''})
         ints = predict_class(prompt)
         result, movie_list = get_response(ints, intents, left_ui)
         with st.chat_message("assistant"):
             st.markdown(result)
 
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": result})
+        st.session_state.messages.append({"role": "assistant",
+                                          "content": result,
+                                          "movie_list": movie_list})
 
         # If we have a recommended list, add the movie list in a code block
         if movie_list:
@@ -128,9 +134,6 @@ def get_response(intents_list, intents_json, left_ui):
             if i['tag'] == tag:
                 result = random.choice(i['responses'])
                 if i['tag'] in ['comedy', 'action', 'drama', 'horror', 'romance']:
-                    st.session_state.messages.append({"role": "assistant", 
-                                                      "content": "Let me do a search for you..."})
-
                     fav_comedy = str(left_ui['fav_comedy'])
                     fav_action = str(left_ui['fav_action'])
                     fav_drama = str(left_ui['fav_drama'])
