@@ -6,3 +6,12 @@ etc.). Integrate this model into a chat bot that can have a conversation to best
 what to watch!
 
 ## Getting started
+
+### Install python package requirements
+    pip install -r requirements.txt
+
+### Train chatbot
+    python train.py
+
+### Launch application
+    streamlit run movieBot.py
