@@ -8,6 +8,7 @@ import pickle
 import numpy as np
 import random
 from recommend_model.model import MovieRecommender
+import pprint
 
 
 LOGGER = get_logger(__name__)
@@ -36,8 +37,7 @@ def run():
         page_icon="👋",
     )
     st.title("Movie Bot")
-   
-    
+
     with open("intents.json") as file:
         intents = json.load(file)
 
@@ -71,7 +71,11 @@ def run():
     drama_recommendations = st.session_state.recommender.get_recommendation(fav_drama)
     romance_recommendations = st.session_state.recommender.get_recommendation(fav_romance)
     horror_recommendations = st.session_state.recommender.get_recommendation(fav_horror)
-
+    recommendations = {'comedy': comedy_recommendations,
+                       'action': action_recommendations,
+                       'drama': drama_recommendations,
+                       'romance': romance_recommendations,
+                       'horror': horror_recommendations}
 
     # parameters
     max_len = 20
@@ -91,7 +95,8 @@ def run():
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
         ints = predict_class(prompt)
-        result = get_response(ints, intents)
+        result = get_response(ints, intents, recommendations)
+        print(f'result: {result}')
         with st.chat_message("assistant"):
             st.markdown(result)
 
@@ -124,13 +129,16 @@ def predict_class(sentence):
         return_list.append({'intent': classes[r[0]], 'probability': str(r[1])})
     return return_list
 
-def get_response(intents_list, intents_json):
+def get_response(intents_list, intents_json, recommendations):
     try:
         tag = intents_list[0]['intent']
         list_of_intents = intents_json['intents']
+        result = ''
         for i in list_of_intents:
             if i['tag'] == tag:
                 result = random.choice(i['responses'])
+                if i['tag'] in recommendations:
+                    result += '\n' + pprint.pformat(recommendations[i["tag"]])
                 break
     except:
         result = "I'm sorry, I don't understand"
