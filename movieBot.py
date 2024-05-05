@@ -51,11 +51,11 @@ def run():
         init_recommender()
 
     left_ui = render_left_ui()
-    comedies = list(st.session_state.recommender.get_random_comedy_movies(10).keys())
-    actions = list(st.session_state.recommender.get_random_action_movies(10).keys())
-    dramas = list(st.session_state.recommender.get_random_drama_movies(10).keys())
-    horrors = list(st.session_state.recommender.get_random_horror_movies(10).keys())
-    romances = list(st.session_state.recommender.get_random_romance_movies(10).keys())
+    comedies = list(st.session_state.recommender.get_random_comedy_movies(250).keys())
+    actions = list(st.session_state.recommender.get_random_action_movies(250).keys())
+    dramas = list(st.session_state.recommender.get_random_drama_movies(250).keys())
+    horrors = list(st.session_state.recommender.get_random_horror_movies(250).keys())
+    romances = list(st.session_state.recommender.get_random_romance_movies(250).keys())
     with st.sidebar:
         st.title("Choose Your Favorite Movies!")
         left_ui['comedy'] = st.selectbox("Favorite Comedy", comedies)
@@ -135,7 +135,7 @@ def get_response(intents_list, intents_json, left_ui):
                 result = random.choice(i['responses'])
                 if i['tag'] in ['comedy', 'action', 'drama', 'horror', 'romance']:
                     fav_movie = left_ui[i['tag']]
-                    recommendations = st.session_state.recommender.get_recommendation(fav_movie)
+                    recommendations = st.session_state.recommender.get_recommendation(fav_movie)[:10]
                     movies = pprint.pformat(recommendations)
                 break
     except:
