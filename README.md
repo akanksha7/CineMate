@@ -14,4 +14,4 @@ what to watch!
     python train.py
 
 ### Launch application
-    streamlit run movieBot.py
+    python -m streamlit run movieBot.py
