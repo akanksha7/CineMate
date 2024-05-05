@@ -22,7 +22,7 @@ words = pickle.load( open('words.pkl', 'rb'))
 classes = pickle.load( open('classes.pkl', 'rb'))
 model = keras.models.load_model('chatbot_model.h5')
 
-@st.cache_data()
+@st.cache_data
 def render_left_ui():
     return {
         'comedy': None,
@@ -73,7 +73,7 @@ def run():
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
             if message['movie_list']:
-                st.code(message['movie_list'])
+                st.text(message['movie_list'])
 
     # React to user input
     if prompt:= st.chat_input("Hey! Here are some movie recommendations for you. What are you in the mood for?"):
@@ -82,25 +82,25 @@ def run():
         st.session_state.messages.append({"role": "user", "content": prompt, 'movie_list': ''})
         ints = predict_class(prompt)
         result, movie_list = get_response(ints, intents, left_ui)
-        with st.chat_message("assistant"):
-            st.markdown(result)
 
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant",
-                                          "content": result,
-                                          "movie_list": movie_list})
+        msg = {"role": "assistant", "content": result, "movie_list": movie_list}
+        st.session_state.messages.append(msg)
 
-        # If we have a recommended list, add the movie list in a code block
-        if movie_list:
-            st.code(movie_list)
+        # Add assistant response to current chat
+        with st.chat_message("assistant"):
+            st.markdown(result)
+            # If we have a recommended movie list, add the list to the chat
+            if movie_list:
+                st.text(movie_list)
 
-@st.cache_resource
+@st.cache_data
 def clean_up_sentence(sentence):
     sentence_words = nltk.word_tokenize(sentence)
     sentence_words = [lemmatizer.lemmatize(word) for word in sentence_words]
     return sentence_words
 
-@st.cache_resource
+@st.cache_data
 def bag_of_words(sentence):
     sentence_words = clean_up_sentence(sentence)
     bag = [0] * len(words)
@@ -110,7 +110,7 @@ def bag_of_words(sentence):
                 bag[i] = 1
     return np.array(bag)
 
-@st.cache_resource
+@st.cache_data
 def predict_class(sentence):
     bow = bag_of_words(sentence)
     res = model.predict(np.array([bow]))[0]
@@ -123,7 +123,7 @@ def predict_class(sentence):
         return_list.append({'intent': classes[r[0]], 'probability': str(r[1])})
     return return_list
 
-@st.cache_resource
+@st.cache_data
 def get_response(intents_list, intents_json, left_ui):
     try:
         tag = intents_list[0]['intent']
@@ -133,7 +133,7 @@ def get_response(intents_list, intents_json, left_ui):
         for i in list_of_intents:
             if i['tag'] == tag:
                 result = random.choice(i['responses'])
-                if i['tag'] in ['comedy', 'action', 'drama', 'horror', 'romance']:
+                if i['tag'] in left_ui.keys():
                     fav_movie = left_ui[i['tag']]
                     recommendations = st.session_state.recommender.get_recommendation(fav_movie)[:10]
                     movies = pprint.pformat(recommendations)
