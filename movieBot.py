@@ -95,13 +95,16 @@ def run():
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
         ints = predict_class(prompt)
-        result = get_response(ints, intents, recommendations)
-        print(f'result: {result}')
+        result, movie_list = get_response(ints, intents, recommendations)
         with st.chat_message("assistant"):
             st.markdown(result)
 
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": result})
+
+        # If we have a recommended list, add the movie list in a code block
+        if movie_list:
+            st.code(movie_list)
 
 def clean_up_sentence(sentence):
     sentence_words = nltk.word_tokenize(sentence)
@@ -134,15 +137,17 @@ def get_response(intents_list, intents_json, recommendations):
         tag = intents_list[0]['intent']
         list_of_intents = intents_json['intents']
         result = ''
+        movies = ''
         for i in list_of_intents:
             if i['tag'] == tag:
                 result = random.choice(i['responses'])
                 if i['tag'] in recommendations:
-                    result += '\n' + pprint.pformat(recommendations[i["tag"]])
+                    movies = pprint.pformat(recommendations[i["tag"]])
                 break
     except:
         result = "I'm sorry, I don't understand"
-    return result
+        movies = ''
+    return result, movies
 
 if __name__ == "__main__":
     run()
