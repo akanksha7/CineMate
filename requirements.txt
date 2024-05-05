@@ -1,8 +1,5 @@
 streamlit
 keras
-json
 numpy
-random
-pickle
 tensorflow 
 nltk
