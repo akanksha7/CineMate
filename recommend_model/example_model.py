@@ -2,7 +2,7 @@ from model import MovieRecommender
 
 def main():
     recommender = MovieRecommender()
-    title = 'The Dark Knight'
+    title = 'The Bear'
     df = recommender.get_recommendation(title)
     print(df)
     titles = df['title'].values

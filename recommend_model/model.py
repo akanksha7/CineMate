@@ -10,17 +10,22 @@ warnings.simplefilter('ignore')
 
 
 class MovieRecommender:
-    def __init__(self, data_path='./data/'):
+    def __init__(self, data_path='./recommend_model/data/'):
         self.data_path = data_path
         self.loaded = False  # Flag to indicate if data is loaded
-        self.links_small = None
-        self.md = None
+        links_small_path = os.path.join(self.data_path, 'links_small.csv')
+        md_path = os.path.join(self.data_path, 'movies_metadata.csv')
+        self.links_small = pd.read_csv(links_small_path, header=0)
+        print(self.links_small.head())
+        self.md = pd.read_csv(md_path, header=0)
         self.gen_md = None
         self.smd = None
         self.indices = None
         self.titles = None
         self.cosine_sim = None
         self.tfidf_matrix = None
+        self.preprocess_and_build_chart()
+        #self.build_smd()
 
     def load_data(self):
         if not self.loaded:
@@ -32,7 +37,7 @@ class MovieRecommender:
 
     def preprocess_data(self):
         self.md['genres'] = (self.md['genres'].fillna('[]')
-                             .apply(literal_eval)
+                             .apply(safe_literal_eval)
                              .apply(lambda x: [i['name'] for i in x] if isinstance(x, list) else []))
 
         self.md['year'] = pd.to_datetime(self.md['release_date'], errors='coerce').apply(
@@ -72,7 +77,6 @@ class MovieRecommender:
         self.gen_md = self.md.drop('genres', axis=1).join(s)
         self.gen_md = self.gen_md.reset_index(drop=True)  # Reset index
 
-
     def build_tfidf_matrix(self):
         self.smd['tagline'] = self.smd['tagline'].fillna('')
         self.smd['description'] = self.smd['overview'] + self.smd['tagline']
@@ -90,18 +94,13 @@ class MovieRecommender:
         return self.titles.iloc[movie_indices]
 
     def get_recommendation(self, title):
-        self.load_data()
-        self.preprocess_and_build_chart()
+        if not self.loaded:
+            self.load_data()
+            self.preprocess_and_build_chart()
 
-        self.links_small = self.links_small[self.links_small['tmdbId'].notnull()]['tmdbId'].astype('int')
-        self.md['id'] = self.md['id'].apply(convert_int)
-        self.md = self.md.drop([19730, 29503, 35587])
-        self.md['id'] = self.md['id'].astype('int')
-        self.smd = self.md[self.md['id'].isin(self.links_small)]
-        self.smd = self.smd.reset_index(drop=True)
+        self.build_smd()
         self.titles = self.smd['title']
         self.indices = pd.Series(self.smd.index, index=self.smd['title'])
-
         self.build_tfidf_matrix()
 
         self.cosine_sim = linear_kernel(self.tfidf_matrix, self.tfidf_matrix)
@@ -112,6 +111,19 @@ class MovieRecommender:
         df = df.drop('index', axis=1)
         return df
 
+    def build_smd(self):
+        self.links_small.columns = ['movieId', 'imdbId', 'tmdbId']
+        self.links_small = self.links_small[self.links_small['tmdbId'].notnull()]
+        self.links_small['tmdbId'] = self.links_small['tmdbId'].astype('int')
+        self.links_small.columns = ['movieId', 'imdbId', 'tmdbId']
+        self.md['id'] = self.md['id'].apply(convert_int)
+        self.md = self.md[self.md['id'].notnull()]
+        self.md['id'] = self.md['id'].astype('int')
+        print("md",self.md.head())
+        self.smd = self.md[self.md['id'].isin(self.links_small['tmdbId'])]
+        self.smd = self.smd.reset_index(drop=True)
+        print("build smd",self.smd.head())
+
     def get_genre(self, movie):
         if not self.loaded:
             self.load_data()
@@ -119,12 +131,13 @@ class MovieRecommender:
         return self.gen_md[self.gen_md['title'] == movie]['genre'].values[0]
 
     def get_random_action_movies(self, num_movies=30):
-        if not self.loaded:
-            self.load_data()
-            self.preprocess_and_build_chart()
-
+        self.build_smd()
+        print("meta",self.gen_md.head())
+        print("smd",self.smd.head())
         action_movies = self.gen_md[self.gen_md['genre'] == 'Action']
-        random_action_movies = action_movies.sample(n=num_movies)
+        # Ensure that the movie is in both self.gen_md and self.smd
+        action_movies = action_movies[action_movies['title'].isin(self.smd['title'])]
+        random_action_movies = action_movies.sample(n=num_movies, random_state=72)
 
         # Create dictionary with {title: genre}
         random_action_movies_dict = dict(zip(random_action_movies['title'], random_action_movies['genre']))
@@ -132,12 +145,11 @@ class MovieRecommender:
         return random_action_movies_dict
 
     def get_random_comedy_movies(self, num_movies=30):
-        if not self.loaded:
-            self.load_data()
-            self.preprocess_and_build_chart()
-
+        self.build_smd()
         comedy_movies = self.gen_md[self.gen_md['genre'] == 'Comedy']
-        random_comedy_movies = comedy_movies.sample(n=num_movies)
+        # Ensure that the movie is in both self.gen_md and self.smd
+        comedy_movies = comedy_movies[comedy_movies['title'].isin(self.smd['title'])]
+        random_comedy_movies = comedy_movies.sample(n=num_movies, random_state=21)
 
         # Create dictionary with {title: genre}
         random_comedy_movies_dict = dict(zip(random_comedy_movies['title'], random_comedy_movies['genre']))
@@ -145,12 +157,12 @@ class MovieRecommender:
         return random_comedy_movies_dict
 
     def get_random_drama_movies(self, num_movies=30):
-        if not self.loaded:
-            self.load_data()
-            self.preprocess_and_build_chart()
+        self.build_smd()
 
         drama_movies = self.gen_md[self.gen_md['genre'] == 'Drama']
-        random_drama_movies = drama_movies.sample(n=num_movies)
+        # Ensure that the movie is in both self.gen_md and self.smd
+        drama_movies = drama_movies[drama_movies['title'].isin(self.smd['title'])]
+        random_drama_movies = drama_movies.sample(n=num_movies, random_state=77)
 
         # Create dictionary with {title: genre}
         random_drama_movies_dict = dict(zip(random_drama_movies['title'], random_drama_movies['genre']))
@@ -158,30 +170,31 @@ class MovieRecommender:
         return random_drama_movies_dict
 
     def get_random_romance_movies(self, num_movies=30):
-        if not self.loaded:
-            self.load_data()
-            self.preprocess_and_build_chart()
+        self.build_smd()
 
         romance_movies = self.gen_md[self.gen_md['genre'] == 'Romance']
-        romance_movies_movies = romance_movies.sample(n=num_movies)
+        # Ensure that the movie is in both self.gen_md and self.smd
+        romance_movies = romance_movies[romance_movies['title'].isin(self.smd['title'])]
+        random_romance_movies = romance_movies.sample(n=num_movies, random_state=56)
 
         # Create dictionary with {title: genre}
-        random_romance_movies_dict = dict(zip(romance_movies_movies['title'], romance_movies_movies['genre']))
+        random_romance_movies_dict = dict(zip(random_romance_movies['title'], random_romance_movies['genre']))
 
         return random_romance_movies_dict
 
     def get_random_horror_movies(self, num_movies=30):
-        if not self.loaded:
-            self.load_data()
-            self.preprocess_and_build_chart()
+        self.build_smd()
 
         horror_movies = self.gen_md[self.gen_md['genre'] == 'Horror']
-        random_horror_movies = horror_movies.sample(n=num_movies)
+        # Ensure that the movie is in both self.gen_md and self.smd
+        horror_movies = horror_movies[horror_movies['title'].isin(self.smd['title'])]
+        random_horror_movies = horror_movies.sample(n=num_movies, random_state=2)
 
         # Create dictionary with {title: genre}
         random_horror_movies_dict = dict(zip(random_horror_movies['title'], random_horror_movies['genre']))
 
         return random_horror_movies_dict
+
 
 
 def convert_int(x):
@@ -190,3 +203,9 @@ def convert_int(x):
     except:
         return np.nan
 
+
+def safe_literal_eval(val):
+    if isinstance(val, str):
+        return literal_eval(val)
+    else:
+        return val

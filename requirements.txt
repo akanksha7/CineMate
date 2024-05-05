@@ -2,9 +2,10 @@ pandas
 numpy
 altair
 pydeck
-streamlit
+streamlit==1.31.0
 tensorflow
 nltk
 colorama
 scikit_learn
 Flask
+keras
