@@ -25,11 +25,11 @@ model = keras.models.load_model('chatbot_model.h5')
 @st.cache_data()
 def render_left_ui():
     return {
-        'fav_comedy': None,
-        'fav_action': None,
-        'fav_drama': None,
-        'fav_romance': None,
-        'fav_horror': None}
+        'comedy': None,
+        'action': None,
+        'drama': None,
+        'romance': None,
+        'horror': None}
 
 @st.cache_resource
 def init_recommender():
@@ -51,18 +51,18 @@ def run():
         init_recommender()
 
     left_ui = render_left_ui()
-    comedies = list(st.session_state.recommender.get_random_comedy_movies(250).keys())
-    actions = list(st.session_state.recommender.get_random_action_movies(250).keys())
-    dramas = list(st.session_state.recommender.get_random_drama_movies(250).keys())
-    horrors = list(st.session_state.recommender.get_random_horror_movies(250).keys())
-    romances = list(st.session_state.recommender.get_random_romance_movies(250).keys())
+    comedies = list(st.session_state.recommender.get_random_comedy_movies(10).keys())
+    actions = list(st.session_state.recommender.get_random_action_movies(10).keys())
+    dramas = list(st.session_state.recommender.get_random_drama_movies(10).keys())
+    horrors = list(st.session_state.recommender.get_random_horror_movies(10).keys())
+    romances = list(st.session_state.recommender.get_random_romance_movies(10).keys())
     with st.sidebar:
         st.title("Choose Your Favorite Movies!")
-        left_ui['fav_comedy'] = st.selectbox("Favorite Comedy", comedies)
-        left_ui['fav_action'] = st.selectbox("Favorite Action", actions)
-        left_ui['fav_drama'] = st.selectbox("Favorite Drama", dramas)
-        left_ui['fav_romance'] = st.selectbox("Favorite Romance", romances)
-        left_ui['fav_horror'] = st.selectbox("Favorite Horror", horrors)
+        left_ui['comedy'] = st.selectbox("Favorite Comedy", comedies)
+        left_ui['action'] = st.selectbox("Favorite Action", actions)
+        left_ui['drama'] = st.selectbox("Favorite Drama", dramas)
+        left_ui['romance'] = st.selectbox("Favorite Romance", romances)
+        left_ui['horror'] = st.selectbox("Favorite Horror", horrors)
 
     # Initialize chat history
     if "messages" not in st.session_state:
@@ -134,24 +134,9 @@ def get_response(intents_list, intents_json, left_ui):
             if i['tag'] == tag:
                 result = random.choice(i['responses'])
                 if i['tag'] in ['comedy', 'action', 'drama', 'horror', 'romance']:
-                    fav_comedy = str(left_ui['fav_comedy'])
-                    fav_action = str(left_ui['fav_action'])
-                    fav_drama = str(left_ui['fav_drama'])
-                    fav_romance = str(left_ui['fav_romance'])
-                    fav_horror = str(left_ui['fav_horror'])
-
-                    comedy_recommendations = st.session_state.recommender.get_recommendation(fav_comedy)
-                    action_recommendations = st.session_state.recommender.get_recommendation(fav_action)
-                    drama_recommendations = st.session_state.recommender.get_recommendation(fav_drama)
-                    romance_recommendations = st.session_state.recommender.get_recommendation(fav_romance)
-                    horror_recommendations = st.session_state.recommender.get_recommendation(fav_horror)
-                    recommendations = {'comedy': comedy_recommendations,
-                                       'action': action_recommendations,
-                                       'drama': drama_recommendations,
-                                       'romance': romance_recommendations,
-                                       'horror': horror_recommendations}
-
-                    movies = pprint.pformat(recommendations[i["tag"]])
+                    fav_movie = left_ui[i['tag']]
+                    recommendations = st.session_state.recommender.get_recommendation(fav_movie)
+                    movies = pprint.pformat(recommendations)
                 break
     except:
         result = "I'm sorry, I don't understand"
