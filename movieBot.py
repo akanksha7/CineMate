@@ -9,11 +9,23 @@ import numpy as np
 import random
 from recommend_model.model import MovieRecommender
 import pprint
+from typing import Optional, List
 
+import os
+
+nltk_data_dir = "./resources/nltk_data_dir"
+if not os.path.exists(nltk_data_dir):
+    os.makedirs(nltk_data_dir, exist_ok=True)
+nltk.data.path.clear()
+nltk.data.path.append(nltk_data_dir)
+nltk.download("wordnet", download_dir=nltk_data_dir)
+nltk.download("stopwords", download_dir=nltk_data_dir)
+nltk.download('punkt', download_dir=nltk_data_dir)
 
 LOGGER = get_logger(__name__)
 
 lemmatizer = WordNetLemmatizer()
+
 
 # load words object
 words = pickle.load( open('words.pkl', 'rb'))
@@ -140,6 +152,29 @@ def get_response(intents_list, intents_json, left_ui):
         result = "I'm sorry, I don't understand"
         movies = ''
     return result, movies
+
+class GlobalsHelper:
+    """Helper to retrieve globals.
+
+    Helpful for global caching of certain variables that can be expensive to load.
+    (e.g. tokenization)
+
+    """
+
+    _stopwords: Optional[List[str]] = None
+    _nltk_data_dir: Optional[str] = None
+
+    def __init__(self) -> None:
+        """Initialize NLTK stopwords and punkt."""
+        import nltk
+
+        self._nltk_data_dir = os.environ.get(
+            "NLTK_DATA",
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "_static/nltk_cache",
+            ),
+        )
 
 if __name__ == "__main__":
     run()
