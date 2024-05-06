@@ -133,7 +133,8 @@ def predict_class(sentence):
     for r in results:
         return_list.append({'intent': classes[r[0]], 'probability': str(r[1])})
     return return_list
-
+    
+@st.cache_resource
 def get_response(intents_list, intents_json, left_ui):
     try:
         tag = intents_list[0]['intent']
