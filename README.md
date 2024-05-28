@@ -1,4 +1,4 @@
-# AI_Mini_Project
+# CineMate
 
 ##  Create a non-generative AI system that will recommend movies or TV shows
 for users to watch based on their preferences and platform subscriptions (Netflix, Hulu,
